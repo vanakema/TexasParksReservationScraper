@@ -162,13 +162,12 @@ class AvailabilityResults:
         self._site_availability = None
         self._date_availability = None
 
-    def get_site_types(self):
-        if self._site_availability is None:
-            self.get_site_availability()
+    @property
+    def site_types(self):
+        return list(site_availability.keys())
 
-        return list(self._site_availability.keys())
-
-    def get_site_availability(self):
+    @property
+    def site_availability(self):
         if self._site_availability is None:
             self._site_availability = dict()
             for site_type in self._site_types_list:
@@ -176,23 +175,24 @@ class AvailabilityResults:
 
         return self._site_availability
 
-    def get_date_availability(self):
+    @property
+    def date_availability(self):
         if self._date_availability is None:
             self._date_availability = dict()
-        for site_name, site_type in self._site_types_list:
-            for availability_date, site_date in site_type.site_availability.items():
-                if availability_date not in self._date_availability:
-                    self._date_availability[availability_date] = DateAvailability(availability_date)
-                self._date_availability[availability_date].add_site(site_name, site_date.num_available)
+            for site_name, site_type in self._site_types_list:
+                for availability_date, site_date in site_type.site_availability.items():
+                    if availability_date not in self._date_availability:
+                        self._date_availability[availability_date] = DateAvailability(availability_date)
+                    self._date_availability[availability_date].add_site(site_name, site_date.num_available)
         return self._date_availability
 
 
 # This example is for Enchanted Rock State Natural Area
 scraper = SiteAvailabilityScraper("79", "03/02/2018", "03/05/2018")
 availability_list = scraper.get_availability_list()
-site_availability = availability_list.get_site_availability()
+site_availability = availability_list.site_availability
 overflow_sites = site_availability['OVERFLOW SITES']
 # Need to modify this to take in a date object
 march_second_availability = overflow_sites.get_availability()['03/02']
 
-date_availability = availability_list.get_date_availability()
+date_availability = availability_list.date_availability
